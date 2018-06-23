@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"strings"
 	"os"
+	"math/rand"
+	"time"
 )
 
 // create a new type of 'deck' which is a slice of strings
@@ -64,4 +66,25 @@ func newDeckFromFile(fileName string) deck {
 	s := strings.Split(string(bs), ",")
 	// return string slice cast as deck
 	return deck(s)
+}
+
+func (d deck) shuffle() {
+	// generates a 64-bit int that will be slightly different
+	// every time shuffle is called (as time.Now() changes)
+	t := time.Now().UnixNano()
+	// generate seed for random number generator;
+	// we need to generate our own because Go will
+	// utilize the same seed every time otherwise, 
+	// resulting in not so random results
+	source := rand.NewSource(t)
+	// initialize new instance of Rand type using generated seed
+	r := rand.New(source)
+
+	for i := range d {
+		// returns a random integer between zero and n,
+		// where n is the length of the given deck minus one
+		newPosition := r.Intn(len(d) - 1)
+		// fancy one line swap between current index and generated random index
+		d[i], d[newPosition] = d[newPosition], d[i]
+	}
 }
